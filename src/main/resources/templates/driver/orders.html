@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Available Orders — TruckMate</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="page-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-brand"><span class="brand-icon">🚛</span> TruckMate</div>
+        <div class="sidebar-user">
+            <div class="user-name" th:text="${driver.name}"></div>
+            <div class="user-meta" th:text="${driver.vehicleNumber}"></div>
+            <div class="mt-1">
+                <span class="turn-active" th:if="${driver.turnActive}"><span class="pulse"></span> Your Turn Active</span>
+                <span class="turn-waiting" th:unless="${driver.turnActive}">⏳ Waiting for Turn</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/driver/dashboard" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+            <a href="/driver/orders" class="nav-item active"><span class="nav-icon">📦</span> Available Orders</a>
+            <a href="/driver/current-job" class="nav-item"><span class="nav-icon">🚚</span> My Current Job</a>
+            <a href="/driver/completed" class="nav-item"><span class="nav-icon">✅</span> Completed Jobs</a>
+            <a href="/driver/priority" class="nav-item"><span class="nav-icon">🔢</span> Priority Status</a>
+            <a href="/driver/notifications" class="nav-item">
+                <span class="nav-icon">🔔</span> Notifications
+                <span class="nav-badge" th:if="${unreadCount > 0}" th:text="${unreadCount}"></span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/logout" class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">↩ Logout</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <span class="topbar-title">Available Orders</span>
+            <div class="topbar-right">
+                <span id="auto-refresh"></span>
+                <span style="font-size:0.8rem;color:var(--text-muted);">Auto-refresh in <span id="refresh-countdown">5</span>s</span>
+            </div>
+        </div>
+        <div class="content-area">
+            <!-- Flash -->
+            <div th:if="${error}" class="alert alert-error auto-dismiss"><span>⚠️</span> <span th:text="${error}"></span></div>
+            <div th:if="${info}" class="alert alert-info auto-dismiss"><span>ℹ️</span> <span th:text="${info}"></span></div>
+
+            <!-- Turn restriction -->
+            <div th:unless="${driver.turnActive}" class="alert alert-warning" style="margin-bottom:20px;">
+                <span>🔒</span>
+                <div>
+                    <strong>Accept is disabled.</strong> It is not your turn yet. 
+                    Check the <a href="/driver/priority" style="text-decoration:underline;">Priority Queue</a> to see whose turn is active.
+                </div>
+            </div>
+
+            <div class="page-header">
+                <h1>Available Orders <span style="font-size:1rem;font-weight:400;color:var(--text-muted);"
+                    th:text="'(' + ${#lists.size(orders)} + ' orders)'"></span></h1>
+                <p>Orders waiting for a driver. <span th:if="${driver.turnActive}">Your turn is <strong>active</strong> — you can accept.</span></p>
+            </div>
+
+            <div class="order-cards" th:if="${!#lists.isEmpty(orders)}">
+                <div class="order-card" th:each="order : ${orders}">
+                    <div class="order-card-header">
+                        <span class="order-id">Order #<span th:text="${order.id}"></span></span>
+                        <span class="badge badge-pending">Pending</span>
+                    </div>
+                    <div class="order-meta">
+                        <div class="order-meta-item">
+                            <div class="meta-label">Transporter</div>
+                            <div th:text="${order.transporter.name}">—</div>
+                        </div>
+                        <div class="order-meta-item">
+                            <div class="meta-label">Goods Type</div>
+                            <div th:text="${order.goodsType}">—</div>
+                        </div>
+                        <div class="order-meta-item">
+                            <div class="meta-label">Weight</div>
+                            <div th:text="${order.weight != null} ? ${order.weight} + ' kg' : 'N/A'">—</div>
+                        </div>
+                        <div class="order-meta-item">
+                            <div class="meta-label">Vehicle Required</div>
+                            <div th:text="${order.vehicleType}">—</div>
+                        </div>
+                        <div class="order-meta-item">
+                            <div class="meta-label">Preferred Time</div>
+                            <div th:text="${order.preferredTime ?: 'Flexible'}">—</div>
+                        </div>
+                        <div class="order-meta-item">
+                            <div class="meta-label">Posted</div>
+                            <div th:text="${#temporals.format(order.createdAt, 'dd MMM, HH:mm')}">—</div>
+                        </div>
+                    </div>
+                    <div class="order-route">
+                        <span>📍</span>
+                        <span th:text="${order.pickupLocation}">Pickup</span>
+                        <span class="route-arrow">→</span>
+                        <span>🏁</span>
+                        <span th:text="${order.dropLocation}">Drop</span>
+                    </div>
+                    <div class="order-actions">
+                        <form th:action="@{/driver/accept/{id}(id=${order.id})}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-green btn-sm"
+                                    th:disabled="${!driver.turnActive}"
+                                    th:title="${driver.turnActive} ? 'Accept this order' : 'Wait for your turn'"
+                                    onclick="return confirmAction('Accept this order? This will be assigned to you.')">
+                                ✅ Accept
+                            </button>
+                        </form>
+                        <form th:action="@{/driver/reject/{id}(id=${order.id})}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-red btn-sm"
+                                    onclick="return confirmAction('Skip this order?')">
+                                ✖ Skip
+                            </button>
+                        </form>
+                        <a th:href="@{/driver/order-detail/{id}(id=${order.id})}" class="btn btn-blue btn-sm">
+                            👁 View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(orders)}">
+                <div class="empty-icon">📭</div>
+                <h3>No orders available</h3>
+                <p>All pending orders have been accepted or you've skipped all available ones. Check back soon!</p>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Dashboard — TruckMate</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="page-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <span class="brand-icon">🚛</span> TruckMate
+        </div>
+        <div class="sidebar-user">
+            <div class="user-name" th:text="${driver.name}">Driver Name</div>
+            <div class="user-meta" th:text="${driver.vehicleNumber}">Vehicle Number</div>
+            <div class="mt-1">
+                <span class="turn-active" th:if="${driver.turnActive}">
+                    <span class="pulse"></span> Your Turn Active
+                </span>
+                <span class="turn-waiting" th:unless="${driver.turnActive}">
+                    ⏳ Waiting for Turn
+                </span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/driver/dashboard" class="nav-item active">
+                <span class="nav-icon">🏠</span> Dashboard
+            </a>
+            <a href="/driver/orders" class="nav-item">
+                <span class="nav-icon">📦</span> Available Orders
+            </a>
+            <a href="/driver/current-job" class="nav-item">
+                <span class="nav-icon">🚚</span> My Current Job
+            </a>
+            <a href="/driver/completed" class="nav-item">
+                <span class="nav-icon">✅</span> Completed Jobs
+            </a>
+            <a href="/driver/priority" class="nav-item">
+                <span class="nav-icon">🔢</span> Priority Status
+            </a>
+            <a href="/driver/notifications" class="nav-item">
+                <span class="nav-icon">🔔</span> Notifications
+                <span class="nav-badge" th:if="${unreadCount > 0}" th:text="${unreadCount}">0</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/logout" class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">
+                ↩ Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main-content">
+        <div class="topbar">
+            <span class="topbar-title">Dashboard Overview</span>
+            <div class="topbar-right">
+                <span style="font-size:0.82rem;color:var(--text-muted);">Priority #<strong th:text="${driver.priority}"></strong></span>
+            </div>
+        </div>
+        <div class="content-area">
+            <div class="page-header">
+                <h1>Welcome back, <span th:text="${driver.name}">Driver</span> 👋</h1>
+                <p>Here's your logistics overview for today.</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-label">Available Orders</div>
+                    <div class="stat-value" th:text="${availableCount}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🔢</div>
+                    <div class="stat-label">My Priority</div>
+                    <div class="stat-value" th:text="'#' + ${driver.priority}">#1</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📍</div>
+                    <div class="stat-label">Current Job</div>
+                    <div class="stat-value" th:text="${currentJob != null} ? '1' : '0'">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🔔</div>
+                    <div class="stat-label">Unread Alerts</div>
+                    <div class="stat-value" th:text="${unreadCount}">0</div>
+                </div>
+            </div>
+
+            <!-- Turn status banner -->
+            <div class="alert alert-success" th:if="${driver.turnActive}" style="margin-bottom:20px;">
+                <span>🟢</span>
+                <div>
+                    <strong>It's your turn!</strong> You can accept orders now. Go to
+                    <a href="/driver/orders" style="text-decoration:underline;">Available Orders</a> to see pending requests.
+                </div>
+            </div>
+            <div class="alert alert-info" th:unless="${driver.turnActive}" style="margin-bottom:20px;">
+                <span>⏳</span>
+                <div>
+                    <strong>Waiting for your turn.</strong> Another driver is currently handling orders.
+                    Check <a href="/driver/priority" style="text-decoration:underline;">Priority Status</a> to see the queue.
+                </div>
+            </div>
+
+            <!-- Current Job quick view -->
+            <div th:if="${currentJob != null}">
+                <h2 style="font-size:1rem;font-weight:700;margin-bottom:12px;">📌 Active Job</h2>
+                <div class="order-card">
+                    <div class="order-card-header">
+                        <span class="order-id">Order #<span th:text="${currentJob.id}"></span></span>
+                        <span class="badge badge-accepted" th:if="${currentJob.status.name() == 'ACCEPTED'}">Accepted</span>
+                        <span class="badge badge-transit" th:if="${currentJob.status.name() == 'IN_TRANSIT'}">In Transit</span>
+                    </div>
+                    <div class="order-route">
+                        <span th:text="${currentJob.pickupLocation}">Pickup</span>
+                        <span class="route-arrow">→</span>
+                        <span th:text="${currentJob.dropLocation}">Drop</span>
+                    </div>
+                    <div class="order-actions">
+                        <a href="/driver/current-job" class="btn btn-blue btn-sm">View Details →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

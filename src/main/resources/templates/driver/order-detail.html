@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Detail — TruckMate</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="page-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-brand"><span class="brand-icon">🚛</span> TruckMate</div>
+        <div class="sidebar-user">
+            <div class="user-name" th:text="${driver.name}"></div>
+            <div class="user-meta" th:text="${driver.vehicleNumber}"></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/driver/dashboard" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+            <a href="/driver/orders" class="nav-item active"><span class="nav-icon">📦</span> Available Orders</a>
+            <a href="/driver/current-job" class="nav-item"><span class="nav-icon">🚚</span> My Current Job</a>
+            <a href="/driver/completed" class="nav-item"><span class="nav-icon">✅</span> Completed Jobs</a>
+            <a href="/driver/priority" class="nav-item"><span class="nav-icon">🔢</span> Priority Status</a>
+            <a href="/driver/notifications" class="nav-item"><span class="nav-icon">🔔</span> Notifications</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/logout" class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">↩ Logout</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <span class="topbar-title">Order Details</span>
+            <div><a href="/driver/orders" class="btn btn-gray btn-sm">← Back to Orders</a></div>
+        </div>
+        <div class="content-area">
+            <div class="page-header">
+                <h1>Order #<span th:text="${order.id}"></span>
+                    <span class="badge badge-pending" style="margin-left:10px;">Pending</span>
+                </h1>
+                <p>Full details for this order request.</p>
+            </div>
+
+            <div class="detail-grid">
+                <div class="detail-section">
+                    <h3>📦 Shipment Info</h3>
+                    <div class="detail-row"><span class="dk">Goods Type</span><span class="dv" th:text="${order.goodsType}">—</span></div>
+                    <div class="detail-row"><span class="dk">Weight</span><span class="dv" th:text="${order.weight != null} ? ${order.weight} + ' kg' : 'N/A'">—</span></div>
+                    <div class="detail-row"><span class="dk">Vehicle Required</span><span class="dv" th:text="${order.vehicleType}">—</span></div>
+                    <div class="detail-row"><span class="dk">Preferred Time</span><span class="dv" th:text="${order.preferredTime ?: 'Flexible'}">—</span></div>
+                    <div class="detail-row"><span class="dk">Created At</span><span class="dv" th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy, HH:mm')}">—</span></div>
+                </div>
+                <div class="detail-section">
+                    <h3>🏢 Transporter Info</h3>
+                    <div class="detail-row"><span class="dk">Name</span><span class="dv" th:text="${order.transporter.name}">—</span></div>
+                    <div class="detail-row"><span class="dk">Company</span><span class="dv" th:text="${order.transporter.companyName ?: 'N/A'}">—</span></div>
+                    <div class="detail-row"><span class="dk">Email</span><span class="dv" th:text="${order.transporter.email}">—</span></div>
+                </div>
+                <div class="detail-section" style="grid-column: 1 / -1;">
+                    <h3>📍 Route</h3>
+                    <div class="order-route" style="font-size:1rem;">
+                        <span>📍</span><strong th:text="${order.pickupLocation}">Pickup</strong>
+                        <span class="route-arrow" style="font-size:1.2rem;">→</span>
+                        <span>🏁</span><strong th:text="${order.dropLocation}">Drop</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-actions mt-4" th:if="${driver.turnActive}">
+                <form th:action="@{/driver/accept/{id}(id=${order.id})}" method="post">
+                    <button type="submit" class="btn btn-green" onclick="return confirmAction('Accept this order?')">
+                        ✅ Accept This Order
+                    </button>
+                </form>
+                <form th:action="@{/driver/reject/{id}(id=${order.id})}" method="post">
+                    <button type="submit" class="btn btn-red" onclick="return confirmAction('Skip this order?')">
+                        ✖ Skip Order
+                    </button>
+                </form>
+            </div>
+            <div class="alert alert-warning mt-4" th:unless="${driver.turnActive}">
+                ⚠️ It is not your turn. You cannot accept or reject orders right now.
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

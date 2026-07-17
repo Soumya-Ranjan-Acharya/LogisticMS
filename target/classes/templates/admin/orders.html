@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>All Orders — TruckMate Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="page-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-brand"><span class="brand-icon">🚛</span> TruckMate</div>
+        <div class="sidebar-user">
+            <div class="user-name" th:text="${admin.name}"></div>
+            <div class="user-meta">Administrator</div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+            <a href="/admin/orders" class="nav-item active"><span class="nav-icon">📦</span> All Orders</a>
+            <a href="/admin/drivers" class="nav-item"><span class="nav-icon">🚛</span> Drivers</a>
+            <a href="/admin/transporters" class="nav-item"><span class="nav-icon">🏢</span> Transporters</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/logout" class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">↩ Logout</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <span class="topbar-title">All Orders</span>
+        </div>
+        <div class="content-area">
+            <div class="page-header">
+                <h1>All System Orders</h1>
+                <p>Complete view of every order in the system.</p>
+            </div>
+
+            <!-- Filter -->
+            <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+                <a href="/admin/orders" class="btn btn-sm" th:classappend="${selectedStatus == 'ALL'} ? 'btn-primary' : 'btn-gray'">All</a>
+                <a href="/admin/orders?status=PENDING" class="btn btn-sm" th:classappend="${selectedStatus == 'PENDING'} ? 'btn-primary' : 'btn-gray'">⏳ Pending</a>
+                <a href="/admin/orders?status=ACCEPTED" class="btn btn-sm" th:classappend="${selectedStatus == 'ACCEPTED'} ? 'btn-primary' : 'btn-gray'">✅ Accepted</a>
+                <a href="/admin/orders?status=IN_TRANSIT" class="btn btn-sm" th:classappend="${selectedStatus == 'IN_TRANSIT'} ? 'btn-primary' : 'btn-gray'">🚚 In Transit</a>
+                <a href="/admin/orders?status=COMPLETED" class="btn btn-sm" th:classappend="${selectedStatus == 'COMPLETED'} ? 'btn-primary' : 'btn-gray'">✓ Completed</a>
+            </div>
+
+            <div class="table-wrapper" th:if="${!#lists.isEmpty(orders)}">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Goods</th>
+                            <th>Route</th>
+                            <th>Transporter</th>
+                            <th>Driver</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="order : ${orders}">
+                            <td><strong>#<span th:text="${order.id}"></span></strong></td>
+                            <td>
+                                <div th:text="${order.goodsType}">—</div>
+                                <small class="text-muted" th:text="${order.weight != null} ? ${order.weight} + ' kg' : ''"></small>
+                            </td>
+                            <td>
+                                <div th:text="${order.pickupLocation}">—</div>
+                                <div style="color:var(--text-muted);">→ <span th:text="${order.dropLocation}">—</span></div>
+                            </td>
+                            <td th:text="${order.transporter.name}">—</td>
+                            <td th:text="${order.driver != null} ? ${order.driver.name} : 'Unassigned'">—</td>
+                            <td>
+                                <span th:switch="${order.status.name()}">
+                                    <span th:case="'PENDING'"    class="badge badge-pending">Pending</span>
+                                    <span th:case="'ACCEPTED'"   class="badge badge-accepted">Accepted</span>
+                                    <span th:case="'IN_TRANSIT'" class="badge badge-transit">In Transit</span>
+                                    <span th:case="'COMPLETED'"  class="badge badge-completed">Completed</span>
+                                </span>
+                            </td>
+                            <td th:text="${#temporals.format(order.createdAt, 'dd MMM, HH:mm')}">—</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(orders)}">
+                <div class="empty-icon">📭</div>
+                <h3>No orders found</h3>
+                <p>No orders matched the selected filter.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

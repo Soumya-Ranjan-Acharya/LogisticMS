@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Order — TruckMate</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="page-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-brand"><span class="brand-icon">🚛</span> TruckMate</div>
+        <div class="sidebar-user">
+            <div class="user-name" th:text="${transporter.name}"></div>
+            <div class="user-meta" th:text="${transporter.companyName ?: ''}"></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/transporter/dashboard" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+            <a href="/transporter/create-order" class="nav-item active"><span class="nav-icon">➕</span> Create Order</a>
+            <a href="/transporter/my-orders" class="nav-item"><span class="nav-icon">📋</span> My Orders</a>
+            <a href="/transporter/profile" class="nav-item"><span class="nav-icon">👤</span> Profile</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/logout" class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">↩ Logout</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <span class="topbar-title">Create New Order</span>
+        </div>
+        <div class="content-area">
+            <div th:if="${error}" class="alert alert-error auto-dismiss"><span>⚠️</span> <span th:text="${error}"></span></div>
+
+            <div class="page-header">
+                <h1>Create Shipment Order</h1>
+                <p>Fill in the details below. The order will be visible to all available drivers.</p>
+            </div>
+
+            <div style="max-width: 720px;">
+                <form id="create-order-form" th:action="@{/transporter/create-order}"
+                      method="post" enctype="multipart/form-data">
+                    <div style="background:var(--bg);border:1px solid var(--border-light);border-radius:var(--radius);padding:28px;">
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Goods Type <span style="color:red">*</span></label>
+                                <input type="text" name="goodsType" class="form-control"
+                                       placeholder="e.g. Electronics, Furniture, Chemicals" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Weight (kg)</label>
+                                <input type="number" name="weight" class="form-control"
+                                       placeholder="e.g. 500" step="0.01" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Vehicle Type <span style="color:red">*</span></label>
+                                <select name="vehicleType" class="form-control" required>
+                                    <option value="">Select vehicle type...</option>
+                                    <option value="Mini Truck">Mini Truck</option>
+                                    <option value="Container Truck">Container Truck</option>
+                                    <option value="Flatbed Truck">Flatbed Truck</option>
+                                    <option value="Refrigerated Truck">Refrigerated Truck</option>
+                                    <option value="Tanker">Tanker</option>
+                                    <option value="Pickup Van">Pickup Van</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Preferred Time</label>
+                                <select name="preferredTime" class="form-control">
+                                    <option value="">Flexible / Any time</option>
+                                    <option value="9 AM">Morning — 9 AM</option>
+                                    <option value="3 PM">Afternoon — 3 PM</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Pickup Location <span style="color:red">*</span></label>
+                                <input type="text" name="pickupLocation" class="form-control"
+                                       placeholder="City, Area, Address" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Drop Location <span style="color:red">*</span></label>
+                                <input type="text" name="dropLocation" class="form-control"
+                                       placeholder="City, Area, Address" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Upload Goods Image (optional)</label>
+                            <input type="file" name="image" class="form-control"
+                                   accept="image/*" style="padding: 6px;">
+                        </div>
+                    </div>
+
+                    <div class="order-actions mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            📤 Submit Order
+                        </button>
+                        <a href="/transporter/dashboard" class="btn btn-gray">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

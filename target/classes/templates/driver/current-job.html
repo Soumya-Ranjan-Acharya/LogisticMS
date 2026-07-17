@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Current Job — TruckMate</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="page-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-brand"><span class="brand-icon">🚛</span> TruckMate</div>
+        <div class="sidebar-user">
+            <div class="user-name" th:text="${driver.name}"></div>
+            <div class="user-meta" th:text="${driver.vehicleNumber}"></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/driver/dashboard" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+            <a href="/driver/orders" class="nav-item"><span class="nav-icon">📦</span> Available Orders</a>
+            <a href="/driver/current-job" class="nav-item active"><span class="nav-icon">🚚</span> My Current Job</a>
+            <a href="/driver/completed" class="nav-item"><span class="nav-icon">✅</span> Completed Jobs</a>
+            <a href="/driver/priority" class="nav-item"><span class="nav-icon">🔢</span> Priority Status</a>
+            <a href="/driver/notifications" class="nav-item">
+                <span class="nav-icon">🔔</span> Notifications
+                <span class="nav-badge" th:if="${unreadCount > 0}" th:text="${unreadCount}"></span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/logout" class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">↩ Logout</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <span class="topbar-title">My Current Job</span>
+        </div>
+        <div class="content-area">
+            <!-- Flash -->
+            <div th:if="${success}" class="alert alert-success auto-dismiss"><span>✅</span> <span th:text="${success}"></span></div>
+            <div th:if="${error}" class="alert alert-error auto-dismiss"><span>⚠️</span> <span th:text="${error}"></span></div>
+
+            <div class="page-header">
+                <h1>Active Delivery Job</h1>
+                <p>Manage your currently assigned order.</p>
+            </div>
+
+            <!-- No current job -->
+            <div class="empty-state" th:if="${currentJob == null}">
+                <div class="empty-icon">🚫</div>
+                <h3>No active job</h3>
+                <p>You don't have an assigned order right now.</p>
+                <a href="/driver/orders" class="btn btn-primary mt-3">Browse Available Orders →</a>
+            </div>
+
+            <!-- Current job card -->
+            <div th:if="${currentJob != null}">
+                <!-- Status Timeline -->
+                <div class="detail-section mb-3" style="margin-bottom:20px;">
+                    <h3>Delivery Progress</h3>
+                    <div class="timeline">
+                        <div class="timeline-step">
+                            <div class="timeline-dot done">✓</div>
+                            <div class="timeline-label">Pending</div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="timeline-dot done">✓</div>
+                            <div class="timeline-label active-label">Accepted</div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="timeline-dot"
+                                 th:classappend="${currentJob.status.name() == 'IN_TRANSIT' or currentJob.status.name() == 'COMPLETED'} ? 'done' : 'active'">
+                                <span th:if="${currentJob.status.name() == 'IN_TRANSIT' or currentJob.status.name() == 'COMPLETED'}">✓</span>
+                                <span th:unless="${currentJob.status.name() == 'IN_TRANSIT' or currentJob.status.name() == 'COMPLETED'}">3</span>
+                            </div>
+                            <div class="timeline-label"
+                                 th:classappend="${currentJob.status.name() == 'IN_TRANSIT'} ? 'active-label' : ''">In Transit</div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="timeline-dot"
+                                 th:classappend="${currentJob.status.name() == 'COMPLETED'} ? 'done' : ''">4</div>
+                            <div class="timeline-label">Completed</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-section">
+                        <h3>📦 Order Info</h3>
+                        <div class="detail-row"><span class="dk">Order ID</span><span class="dv">#<span th:text="${currentJob.id}"></span></span></div>
+                        <div class="detail-row"><span class="dk">Goods</span><span class="dv" th:text="${currentJob.goodsType}"></span></div>
+                        <div class="detail-row"><span class="dk">Weight</span><span class="dv" th:text="${currentJob.weight != null} ? ${currentJob.weight} + ' kg' : 'N/A'"></span></div>
+                        <div class="detail-row"><span class="dk">Vehicle</span><span class="dv" th:text="${currentJob.vehicleType}"></span></div>
+                        <div class="detail-row"><span class="dk">Status</span>
+                            <span class="badge badge-accepted" th:if="${currentJob.status.name() == 'ACCEPTED'}">Accepted</span>
+                            <span class="badge badge-transit" th:if="${currentJob.status.name() == 'IN_TRANSIT'}">In Transit</span>
+                        </div>
+                        <div class="detail-row"><span class="dk">Accepted At</span><span class="dv" th:text="${currentJob.acceptedAt != null} ? ${#temporals.format(currentJob.acceptedAt, 'dd MMM, HH:mm')} : 'N/A'"></span></div>
+                    </div>
+                    <div class="detail-section">
+                        <h3>🏢 Transporter</h3>
+                        <div class="detail-row"><span class="dk">Name</span><span class="dv" th:text="${currentJob.transporter.name}"></span></div>
+                        <div class="detail-row"><span class="dk">Company</span><span class="dv" th:text="${currentJob.transporter.companyName ?: 'N/A'}"></span></div>
+                    </div>
+                    <div class="detail-section" style="grid-column: 1 / -1;">
+                        <h3>📍 Route</h3>
+                        <div class="order-route" style="font-size:1rem;">
+                            <span>📍</span>
+                            <strong th:text="${currentJob.pickupLocation}"></strong>
+                            <span class="route-arrow" style="font-size:1.2rem;">→</span>
+                            <span>🏁</span>
+                            <strong th:text="${currentJob.dropLocation}"></strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="order-actions mt-4">
+                    <!-- ACCEPTED → Start Delivery -->
+                    <form th:if="${currentJob.status.name() == 'ACCEPTED'}"
+                          th:action="@{/driver/start/{id}(id=${currentJob.id})}" method="post">
+                        <button type="submit" class="btn btn-blue"
+                                onclick="return confirmAction('Start delivery for this order?')">
+                            🚚 Start Delivery
+                        </button>
+                    </form>
+                    <!-- IN_TRANSIT → Mark as Completed -->
+                    <form th:if="${currentJob.status.name() == 'IN_TRANSIT'}"
+                          th:action="@{/driver/complete/{id}(id=${currentJob.id})}" method="post">
+                        <button type="submit" class="btn btn-green"
+                                onclick="return confirmAction('Mark this delivery as completed?')">
+                            ✅ Mark as Completed
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

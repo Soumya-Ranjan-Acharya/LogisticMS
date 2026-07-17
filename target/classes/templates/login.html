@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — TruckMate</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="login-page">
+    <div class="login-container">
+        <div class="login-logo">
+            <div class="logo-text">🚛 TruckMate</div>
+            <div class="logo-sub">Logistics Management System</div>
+        </div>
+
+        <!-- Flash Messages -->
+        <div th:if="${success}" class="alert alert-success auto-dismiss">
+            <span>✅</span> <span th:text="${success}"></span>
+        </div>
+        <div th:if="${otpSent == true}" class="alert alert-info">
+            <span>📩</span>
+            <div>
+                OTP sent! <strong>Demo OTP: <span th:text="${otpCode}" style="font-size:1.1rem;letter-spacing:2px"></span></strong>
+                <br><small>Enter this code below to login.</small>
+            </div>
+        </div>
+        <div th:if="${otpError}" class="alert alert-error auto-dismiss">
+            <span>❌</span> <span th:text="${otpError}"></span>
+        </div>
+
+        <div class="login-card">
+            <h2>Welcome back</h2>
+            <p class="subtitle">Sign in to your TruckMate account</p>
+
+            <!-- Error -->
+            <div th:if="${error}" class="alert alert-error auto-dismiss">
+                <span>⚠️</span> <span th:text="${error}"></span>
+            </div>
+
+            <!-- Login with Password -->
+            <div id="password-section">
+                <form th:action="@{/login}" method="post">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" name="email" class="form-control"
+                               placeholder="you@company.com" th:value="${email}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-control"
+                               placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full btn-lg">
+                        Sign In →
+                    </button>
+                </form>
+                <div style="text-align:center; margin-top: 16px;">
+                    <span style="color: var(--text-muted); font-size:0.85rem;">or</span><br>
+                    <button class="btn btn-outline mt-2" onclick="showOtpSection()" style="width:100%;margin-top:8px;">
+                        📧 Login with OTP
+                    </button>
+                </div>
+            </div>
+
+            <!-- OTP Section -->
+            <div id="otp-section" style="display:none;">
+                <!-- Step 1: Request OTP -->
+                <div th:unless="${otpSent == true}">
+                    <form th:action="@{/send-otp}" method="post">
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email" class="form-control"
+                                   placeholder="you@company.com"
+                                   th:value="${otpEmail}" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            📨 Send OTP
+                        </button>
+                    </form>
+                </div>
+                <!-- Step 2: Verify OTP -->
+                <form th:if="${otpSent == true}" th:action="@{/verify-otp}" method="post">
+                    <input type="hidden" name="email" th:value="${otpEmail}">
+                    <div class="form-group">
+                        <label class="form-label">Enter OTP</label>
+                        <input type="text" name="otp" class="form-control"
+                               placeholder="6-digit code" maxlength="6" required autofocus>
+                    </div>
+                    <button type="submit" class="btn btn-green btn-full">
+                        ✅ Verify & Login
+                    </button>
+                </form>
+                <div style="text-align:center; margin-top: 16px;">
+                    <button class="btn btn-gray btn-sm" onclick="showPasswordSection()">
+                        ← Back to Password Login
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo credentials -->
+        <div style="margin-top: 24px; padding: 16px; background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 0.8rem;">
+            <div style="font-weight: 700; margin-bottom: 8px;">🔑 Demo Credentials</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; color: var(--text-muted);">
+                <div><strong>Admin:</strong> admin@truckmate.com</div><div>admin123</div>
+                <div><strong>Driver 1:</strong> driver1@truckmate.com</div><div>driver123</div>
+                <div><strong>Driver 2:</strong> driver2@truckmate.com</div><div>driver1234</div>
+                <div><strong>Driver 3:</strong> driver3@truckmate.com</div><div>driver12345</div>   
+                <div><strong>Transporter:</strong> transporter1@truckmate.com</div><div>trans123</div>
+                <div><strong>Transporter:</strong> transporter2@truckmate.com</div><div>trans1234</div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+<!-- Auto-show OTP section if OTP was sent/error -->
+<script th:if="${otpSent == true or otpError != null}">showOtpSection();</script>
+</body>
+</html>

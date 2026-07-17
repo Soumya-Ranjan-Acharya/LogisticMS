@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Completed Jobs — TruckMate</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="page-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-brand"><span class="brand-icon">🚛</span> TruckMate</div>
+        <div class="sidebar-user">
+            <div class="user-name" th:text="${driver.name}"></div>
+            <div class="user-meta" th:text="${driver.vehicleNumber}"></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/driver/dashboard" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+            <a href="/driver/orders" class="nav-item"><span class="nav-icon">📦</span> Available Orders</a>
+            <a href="/driver/current-job" class="nav-item"><span class="nav-icon">🚚</span> My Current Job</a>
+            <a href="/driver/completed" class="nav-item active"><span class="nav-icon">✅</span> Completed Jobs</a>
+            <a href="/driver/priority" class="nav-item"><span class="nav-icon">🔢</span> Priority Status</a>
+            <a href="/driver/notifications" class="nav-item">
+                <span class="nav-icon">🔔</span> Notifications
+                <span class="nav-badge" th:if="${unreadCount > 0}" th:text="${unreadCount}"></span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/logout" class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">↩ Logout</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <span class="topbar-title">Completed Jobs</span>
+        </div>
+        <div class="content-area">
+            <!-- Flash -->
+            <div th:if="${success}" class="alert alert-success auto-dismiss"><span>✅</span> <span th:text="${success}"></span></div>
+
+            <div class="page-header">
+                <h1>Completed Deliveries</h1>
+                <p>Your delivery history — all completed orders.</p>
+            </div>
+
+            <div class="table-wrapper" th:if="${!#lists.isEmpty(completedOrders)}">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Goods</th>
+                            <th>Route</th>
+                            <th>Transporter</th>
+                            <th>Completed At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="order : ${completedOrders}">
+                            <td><strong>#<span th:text="${order.id}"></span></strong></td>
+                            <td><span th:text="${order.goodsType}">—</span><br>
+                                <small class="text-muted" th:text="${order.weight != null} ? ${order.weight} + ' kg' : ''"></small></td>
+                            <td>
+                                <span th:text="${order.pickupLocation}">—</span>
+                                <span style="color:var(--text-muted);"> → </span>
+                                <span th:text="${order.dropLocation}">—</span>
+                            </td>
+                            <td th:text="${order.transporter.name}">—</td>
+                            <td th:text="${order.completedAt != null} ? ${#temporals.format(order.completedAt, 'dd MMM yyyy, HH:mm')} : 'N/A'">—</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(completedOrders)}">
+                <div class="empty-icon">📋</div>
+                <h3>No completed jobs yet</h3>
+                <p>Your completed deliveries will appear here after you finish your first order.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

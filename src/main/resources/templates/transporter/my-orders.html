@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Orders — TruckMate</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="page-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-brand"><span class="brand-icon">🚛</span> TruckMate</div>
+        <div class="sidebar-user">
+            <div class="user-name" th:text="${transporter.name}"></div>
+            <div class="user-meta" th:text="${transporter.companyName ?: ''}"></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/transporter/dashboard" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+            <a href="/transporter/create-order" class="nav-item"><span class="nav-icon">➕</span> Create Order</a>
+            <a href="/transporter/my-orders" class="nav-item active"><span class="nav-icon">📋</span> My Orders</a>
+            <a href="/transporter/profile" class="nav-item"><span class="nav-icon">👤</span> Profile</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/logout" class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">↩ Logout</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <span class="topbar-title">My Orders</span>
+            <div>
+                <a href="/transporter/create-order" class="btn btn-primary btn-sm">+ New Order</a>
+            </div>
+        </div>
+        <div class="content-area">
+            <div th:if="${success}" class="alert alert-success auto-dismiss"><span>✅</span> <span th:text="${success}"></span></div>
+
+            <div class="page-header">
+                <h1>My Shipment Orders</h1>
+                <p>Track all your orders with real-time status updates.</p>
+            </div>
+
+            <div class="order-cards" th:if="${!#lists.isEmpty(orders)}">
+                <div class="order-card" th:each="order : ${orders}">
+                    <div class="order-card-header">
+                        <span class="order-id">Order #<span th:text="${order.id}"></span></span>
+                        <span th:switch="${order.status.name()}">
+                            <span th:case="'PENDING'"   class="badge badge-pending">⏳ Pending</span>
+                            <span th:case="'ACCEPTED'"  class="badge badge-accepted">✅ Accepted</span>
+                            <span th:case="'IN_TRANSIT'" class="badge badge-transit">🚚 In Transit</span>
+                            <span th:case="'COMPLETED'" class="badge badge-completed">✓ Completed</span>
+                        </span>
+                    </div>
+
+                    <!-- Status Timeline -->
+                    <div class="timeline">
+                        <div class="timeline-step">
+                            <div class="timeline-dot done">✓</div>
+                            <div class="timeline-label">Pending</div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="timeline-dot"
+                                 th:classappend="${order.status.name() == 'ACCEPTED' or order.status.name() == 'IN_TRANSIT' or order.status.name() == 'COMPLETED'} ? 'done' : ''">
+                                <span th:if="${order.status.name() != 'PENDING'}">✓</span>
+                                <span th:if="${order.status.name() == 'PENDING'}">2</span>
+                            </div>
+                            <div class="timeline-label">Accepted</div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="timeline-dot"
+                                 th:classappend="${order.status.name() == 'IN_TRANSIT' or order.status.name() == 'COMPLETED'} ? 'done' : ''">
+                                <span th:if="${order.status.name() == 'IN_TRANSIT' or order.status.name() == 'COMPLETED'}">✓</span>
+                                <span th:unless="${order.status.name() == 'IN_TRANSIT' or order.status.name() == 'COMPLETED'}">3</span>
+                            </div>
+                            <div class="timeline-label">In Transit</div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="timeline-dot"
+                                 th:classappend="${order.status.name() == 'COMPLETED'} ? 'done' : ''">
+                                <span th:if="${order.status.name() == 'COMPLETED'}">✓</span>
+                                <span th:unless="${order.status.name() == 'COMPLETED'}">4</span>
+                            </div>
+                            <div class="timeline-label">Completed</div>
+                        </div>
+                    </div>
+
+                    <div class="order-meta">
+                        <div class="order-meta-item">
+                            <div class="meta-label">Goods</div>
+                            <div th:text="${order.goodsType}">—</div>
+                        </div>
+                        <div class="order-meta-item">
+                            <div class="meta-label">Vehicle</div>
+                            <div th:text="${order.vehicleType}">—</div>
+                        </div>
+                        <div class="order-meta-item">
+                            <div class="meta-label">Assigned Driver</div>
+                            <div th:if="${order.driver != null}" th:text="${order.driver.name}">—</div>
+                            <div th:unless="${order.driver != null}" class="text-muted">Not yet assigned</div>
+                        </div>
+                        <div class="order-meta-item">
+                            <div class="meta-label">Created</div>
+                            <div th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy')}">—</div>
+                        </div>
+                    </div>
+                    <div class="order-route">
+                        <span>📍</span><span th:text="${order.pickupLocation}">Pickup</span>
+                        <span class="route-arrow">→</span>
+                        <span>🏁</span><span th:text="${order.dropLocation}">Drop</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(orders)}">
+                <div class="empty-icon">📦</div>
+                <h3>No orders yet</h3>
+                <p>Create your first shipment order to get started.</p>
+                <a href="/transporter/create-order" class="btn btn-primary mt-3">+ Create Order</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

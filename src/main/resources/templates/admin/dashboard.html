@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard — TruckMate</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="page-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-brand"><span class="brand-icon">🚛</span> TruckMate</div>
+        <div class="sidebar-user">
+            <div class="user-name" th:text="${admin.name}">Admin</div>
+            <div class="user-meta">System Administrator</div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard" class="nav-item active"><span class="nav-icon">🏠</span> Dashboard</a>
+            <a href="/admin/orders" class="nav-item"><span class="nav-icon">📦</span> All Orders</a>
+            <a href="/admin/drivers" class="nav-item"><span class="nav-icon">🚛</span> Drivers</a>
+            <a href="/admin/transporters" class="nav-item"><span class="nav-icon">🏢</span> Transporters</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/logout" class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">↩ Logout</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <span class="topbar-title">System Control Center</span>
+        </div>
+        <div class="content-area">
+            <div class="page-header">
+                <h1>Admin Dashboard 🛠️</h1>
+                <p>Full system visibility — monitor orders, drivers, and transporters.</p>
+            </div>
+
+            <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-label">Total Orders</div>
+                    <div class="stat-value" th:text="${totalOrders}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-label">Pending</div>
+                    <div class="stat-value" th:text="${pendingOrders}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🚚</div>
+                    <div class="stat-label">Active Deliveries</div>
+                    <div class="stat-value" th:text="${activeOrders}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-label">Completed</div>
+                    <div class="stat-value" th:text="${completedOrders}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👷</div>
+                    <div class="stat-label">Total Drivers</div>
+                    <div class="stat-value" th:text="${totalDrivers}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏢</div>
+                    <div class="stat-label">Transporters</div>
+                    <div class="stat-value" th:text="${totalTransporters}">0</div>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:8px;">
+                <a href="/admin/orders" style="text-decoration:none;">
+                    <div style="background:var(--bg);border:1px solid var(--border-light);border-radius:var(--radius);
+                                padding:20px;text-align:center;transition:box-shadow 0.15s ease;"
+                         onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'"
+                         onmouseout="this.style.boxShadow=''">
+                        <div style="font-size:2rem;margin-bottom:8px;">📋</div>
+                        <div style="font-weight:700;">View All Orders</div>
+                        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Filter by status</div>
+                    </div>
+                </a>
+                <a href="/admin/drivers" style="text-decoration:none;">
+                    <div style="background:var(--bg);border:1px solid var(--border-light);border-radius:var(--radius);
+                                padding:20px;text-align:center;transition:box-shadow 0.15s ease;"
+                         onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'"
+                         onmouseout="this.style.boxShadow=''">
+                        <div style="font-size:2rem;margin-bottom:8px;">🚛</div>
+                        <div style="font-weight:700;">Manage Drivers</div>
+                        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Priority &amp; availability</div>
+                    </div>
+                </a>
+                <a href="/admin/transporters" style="text-decoration:none;">
+                    <div style="background:var(--bg);border:1px solid var(--border-light);border-radius:var(--radius);
+                                padding:20px;text-align:center;transition:box-shadow 0.15s ease;"
+                         onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'"
+                         onmouseout="this.style.boxShadow=''">
+                        <div style="font-size:2rem;margin-bottom:8px;">🏢</div>
+                        <div style="font-weight:700;">Transporters</div>
+                        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Companies &amp; orders</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

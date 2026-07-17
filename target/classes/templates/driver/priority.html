@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Priority Status — TruckMate</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="page-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-brand"><span class="brand-icon">🚛</span> TruckMate</div>
+        <div class="sidebar-user">
+            <div class="user-name" th:text="${driver.name}"></div>
+            <div class="user-meta" th:text="${driver.vehicleNumber}"></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/driver/dashboard" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+            <a href="/driver/orders" class="nav-item"><span class="nav-icon">📦</span> Available Orders</a>
+            <a href="/driver/current-job" class="nav-item"><span class="nav-icon">🚚</span> My Current Job</a>
+            <a href="/driver/completed" class="nav-item"><span class="nav-icon">✅</span> Completed Jobs</a>
+            <a href="/driver/priority" class="nav-item active"><span class="nav-icon">🔢</span> Priority Status</a>
+            <a href="/driver/notifications" class="nav-item">
+                <span class="nav-icon">🔔</span> Notifications
+                <span class="nav-badge" th:if="${unreadCount > 0}" th:text="${unreadCount}"></span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/logout" class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">↩ Logout</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <span class="topbar-title">Priority Queue</span>
+        </div>
+        <div class="content-area">
+            <div class="page-header">
+                <h1>Driver Priority Queue</h1>
+                <p>Drivers take turns accepting orders based on priority. Only the active driver can accept.</p>
+            </div>
+
+            <div class="alert alert-info" style="margin-bottom:20px;">
+                ℹ️ After a driver accepts an order, the turn automatically passes to the next driver in queue.
+                The queue wraps around (3 → 1 → 2 → 3...).
+            </div>
+
+            <div class="priority-list">
+                <div th:each="d : ${allDrivers}"
+                     class="priority-item"
+                     th:classappend="${d.turnActive} ? 'active-turn ' : ''
+                                     + (${d.id == driver.id} ? 'you' : '')">
+                    <div class="priority-number" th:text="${d.priority}">1</div>
+                    <div style="flex:1;">
+                        <div style="font-weight: 600;" th:text="${d.name}">Driver Name</div>
+                        <div style="font-size:0.8rem;color:var(--text-muted);" th:text="${d.vehicleNumber}">Vehicle</div>
+                    </div>
+                    <div>
+                        <span class="badge badge-active" th:if="${d.turnActive}">🟢 Active Turn</span>
+                        <span class="badge badge-waiting" th:unless="${d.turnActive}">Waiting</span>
+                        <span th:if="${d.id == driver.id}"
+                              style="margin-left:8px;font-size:0.75rem;font-weight:700;color:var(--text-muted);">(YOU)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-section mt-4" style="margin-top:24px;">
+                <h3>How Priority Works</h3>
+                <div class="detail-row"><span class="dk">Turn rotation</span><span class="dv">Automatic after accept or all-skip</span></div>
+                <div class="detail-row"><span class="dk">Accept restriction</span><span class="dv">Only active-turn driver can accept</span></div>
+                <div class="detail-row"><span class="dk">Skip behavior</span><span class="dv">Skip all → turn passes to next driver</span></div>
+                <div class="detail-row"><span class="dk">Queue cycle</span><span class="dv">1 → 2 → 3 → 1 → 2... (wraps around)</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
